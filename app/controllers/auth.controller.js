@@ -26,6 +26,7 @@ exports.register = async (req, res) => {
       sessionId,
       isSessionActive: true
     });
+    console.log('[REGISTER]:', user.toJSON());
     const accessToken = jwt.sign({ id: user.id }, config.secret, { expiresIn: "15m" });
     const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, { expiresIn: "7d" });
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -64,6 +65,7 @@ exports.login = async (req, res) => {
   const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, { expiresIn: "7d" });
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
   await user.update({ refreshToken, refreshTokenExpires: expires, sessionId, isSessionActive: true });
+  console.log('[LOGIN]:', user.id, 'sessionId:', sessionId, 'isSessionActive:', user.isSessionActive);
   res.status(200).json({
     id: user.id,
     username: user.username,
@@ -88,6 +90,7 @@ exports.refresh = async (req, res) => {
     return res.status(401).json({ message: "Refresh token невалиден" });
   }
   const user = await User.findOne({ where: { id: payload.id, sessionId, isSessionActive: true } });
+  console.log('[REFRESH]: user:', user && user.toJSON && user.toJSON(), 'refresh:', refreshToken, 'inDB:', user && user.refreshToken);
   if (!user || user.refreshToken !== refreshToken || new Date() > user.refreshTokenExpires) {
     return res.status(401).json({ message: "Неверная или просроченная сессия/refreshToken" });
   }
@@ -112,6 +115,7 @@ exports.logout = async (req, res) => {
   if (!sessionId) return res.status(400).json({ message: "sessionId required" });
   const user = await User.findOne({ where: { sessionId } });
   if (!user || !user.isSessionActive) return res.status(400).json({ message: "Сессия не найдена" });
+  console.log('[LOGOUT]: sessionId:', sessionId, 'user:', user && user.toJSON && user.toJSON());
   await user.update({
     refreshToken: null,
     refreshTokenExpires: null,

@@ -18,7 +18,7 @@ verifyToken = (req, res, next) => {
   jwt.verify(token, config.secret, (err, decoded) => {
     if (err) {
       return res.status(401).send({
-        message: "Unauthorized! Token is invalid or expired.",
+        message: "Unauthorized! Token is invalid or expired",
       });
     }
     req.userId = decoded.id;
@@ -52,16 +52,36 @@ const hybridAuth = async (req, res, next) => {
   }
 
   async function trySession() {
-    const sessionId = req.headers["x-session-id"] || req.cookies?.sessionId || req.body.sessionId;
+    const sessionId =
+      req.headers["x-session-id"] ||
+      req.cookies?.sessionId ||
+      req.body.sessionId;
     if (!sessionId) {
-      return res.status(401).send({ message: "Unauthorized: no JWT nor session." });
+      return res
+        .status(401)
+        .send({ message: "Unauthorized: no JWT nor session." });
     }
-    const user = await User.findOne({ where: { sessionId, isSessionActive: true } });
-    if (!user) {
+    const user = await User.findOne({ where: { sessionId } });
+    console.log(
+      "HybridAuth_Middleware: sessionId:",
+      sessionId,
+      "user:",
+      user && user.toJSON && user.toJSON()
+    );
+    if (
+      !user ||
+      !(
+        user.isSessionActive === true ||
+        user.isSessionActive === 1 ||
+        user.isSessionActive === "true"
+      )
+    ) {
       return res.status(401).send({ message: "Session invalid." });
     }
     req.userId = user.id;
-    const newToken = jwt.sign({ id: user.id }, config.secret, { expiresIn: "15m" });
+    const newToken = jwt.sign({ id: user.id }, config.secret, {
+      expiresIn: "15m",
+    });
     res.setHeader("x-new-access-token", newToken);
     return next();
   }
@@ -69,7 +89,7 @@ const hybridAuth = async (req, res, next) => {
 
 const authJwt = {
   verifyToken: verifyToken,
-  verifySession: verifySession
+  verifySession: verifySession,
 };
 authJwt.hybridAuth = hybridAuth;
 module.exports = authJwt;
