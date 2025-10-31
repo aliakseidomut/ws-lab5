@@ -10,11 +10,15 @@ const { Op } = require("sequelize");
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password) {
-    return res.status(400).json({ message: "All fields required" });
+    return res.status(400).json({ message: "All fields required." });
   }
-  const exists = await User.findOne({ where: { [Op.or]: [{ username }, { email }] } });
+  const exists = await User.findOne({
+    where: { [Op.or]: [{ username }, { email }] },
+  });
   if (exists) {
-    return res.status(400).json({ message: "Username or email already exists" });
+    return res
+      .status(400)
+      .json({ message: "Username or email already exists" });
   }
   const hash = bcrypt.hashSync(password, 8);
   const sessionId = crypto.randomBytes(32).toString("hex");
@@ -24,11 +28,15 @@ exports.register = async (req, res) => {
       email,
       password: hash,
       sessionId,
-      isSessionActive: true
+      isSessionActive: true,
     });
-    console.log('[REGISTER]:', user.toJSON());
-    const accessToken = jwt.sign({ id: user.id }, config.secret, { expiresIn: "15m" });
-    const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, { expiresIn: "7d" });
+    console.log("[REGISTER]:", user.toJSON());
+    const accessToken = jwt.sign({ id: user.id }, config.secret, {
+      expiresIn: "15m",
+    });
+    const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, {
+      expiresIn: "7d",
+    });
     const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     await user.update({ refreshToken, refreshTokenExpires: expires });
     res.status(201).json({
@@ -37,7 +45,7 @@ exports.register = async (req, res) => {
       email: user.email,
       accessToken,
       refreshToken,
-      sessionId
+      sessionId,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -47,7 +55,9 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   const { username, email, password } = req.body;
   if ((!username && !email) || !password) {
-    return res.status(400).json({ message: "Username/email and password required" });
+    return res
+      .status(400)
+      .json({ message: "Username/email and password required" });
   }
   const user = await User.findOne({
     where: username ? { username } : { email },
@@ -61,25 +71,43 @@ exports.login = async (req, res) => {
   const jwt = require("jsonwebtoken");
   const config = require("../config/auth.config");
   const sessionId = crypto.randomBytes(32).toString("hex");
-  const accessToken = jwt.sign({ id: user.id }, config.secret, { expiresIn: "15m" });
-  const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, { expiresIn: "7d" });
+  const accessToken = jwt.sign({ id: user.id }, config.secret, {
+    expiresIn: "15m",
+  });
+  const refreshToken = jwt.sign({ id: user.id }, config.refreshSecret, {
+    expiresIn: "7d",
+  });
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await user.update({ refreshToken, refreshTokenExpires: expires, sessionId, isSessionActive: true });
-  console.log('[LOGIN]:', user.id, 'sessionId:', sessionId, 'isSessionActive:', user.isSessionActive);
+  await user.update({
+    refreshToken,
+    refreshTokenExpires: expires,
+    sessionId,
+    isSessionActive: true,
+  });
+  console.log(
+    "[LOGIN]:",
+    user.id,
+    "sessionId:",
+    sessionId,
+    "isSessionActive:",
+    user.isSessionActive
+  );
   res.status(200).json({
     id: user.id,
     username: user.username,
     email: user.email,
     accessToken,
     refreshToken,
-    sessionId
+    sessionId,
   });
 };
 
 exports.refresh = async (req, res) => {
   const { refreshToken, sessionId } = req.body;
   if (!refreshToken || !sessionId) {
-    return res.status(400).json({ message: "refreshToken и sessionId обязательны" });
+    return res
+      .status(400)
+      .json({ message: "refreshToken и sessionId обязательны" });
   }
   const jwt = require("jsonwebtoken");
   const config = require("../config/auth.config");
@@ -89,38 +117,69 @@ exports.refresh = async (req, res) => {
   } catch {
     return res.status(401).json({ message: "Refresh token невалиден" });
   }
-  const user = await User.findOne({ where: { id: payload.id, sessionId, isSessionActive: true } });
-  console.log('[REFRESH]: user:', user && user.toJSON && user.toJSON(), 'refresh:', refreshToken, 'inDB:', user && user.refreshToken);
-  if (!user || user.refreshToken !== refreshToken || new Date() > user.refreshTokenExpires) {
-    return res.status(401).json({ message: "Неверная или просроченная сессия/refreshToken" });
+  const user = await User.findOne({
+    where: { id: payload.id, sessionId, isSessionActive: true },
+  });
+  console.log(
+    "[REFRESH]: user:",
+    user && user.toJSON && user.toJSON(),
+    "refresh:",
+    refreshToken,
+    "inDB:",
+    user && user.refreshToken
+  );
+  if (
+    !user ||
+    user.refreshToken !== refreshToken ||
+    new Date() > user.refreshTokenExpires
+  ) {
+    return res
+      .status(401)
+      .json({ message: "Неверная или просроченная сессия/refreshToken" });
   }
-  
+
   const newSessionId = crypto.randomBytes(32).toString("hex");
-  const accessToken = jwt.sign({ id: user.id }, config.secret, { expiresIn: "15m" });
-  const newRefreshToken = jwt.sign({ id: user.id }, config.refreshSecret, { expiresIn: "7d" });
+  const accessToken = jwt.sign({ id: user.id }, config.secret, {
+    expiresIn: "15m",
+  });
+  const newRefreshToken = jwt.sign({ id: user.id }, config.refreshSecret, {
+    expiresIn: "7d",
+  });
   const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-  await user.update({ refreshToken: newRefreshToken, refreshTokenExpires: expires, sessionId: newSessionId, isSessionActive: true });
+  await user.update({
+    refreshToken: newRefreshToken,
+    refreshTokenExpires: expires,
+    sessionId: newSessionId,
+    isSessionActive: true,
+  });
   res.status(200).json({
     id: user.id,
     username: user.username,
     email: user.email,
     accessToken,
     refreshToken: newRefreshToken,
-    sessionId: newSessionId
+    sessionId: newSessionId,
   });
 };
 
 exports.logout = async (req, res) => {
   const { sessionId } = req.body;
-  if (!sessionId) return res.status(400).json({ message: "sessionId required" });
+  if (!sessionId)
+    return res.status(400).json({ message: "sessionId required" });
   const user = await User.findOne({ where: { sessionId } });
-  if (!user || !user.isSessionActive) return res.status(400).json({ message: "Сессия не найдена" });
-  console.log('[LOGOUT]: sessionId:', sessionId, 'user:', user && user.toJSON && user.toJSON());
+  if (!user || !user.isSessionActive)
+    return res.status(400).json({ message: "Сессия не найдена" });
+  console.log(
+    "[LOGOUT]: sessionId:",
+    sessionId,
+    "user:",
+    user && user.toJSON && user.toJSON()
+  );
   await user.update({
     refreshToken: null,
     refreshTokenExpires: null,
     sessionId: null,
-    isSessionActive: false
+    isSessionActive: false,
   });
   res.status(200).json({ message: "Logout ok" });
 };
