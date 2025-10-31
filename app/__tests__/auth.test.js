@@ -1,6 +1,6 @@
 const request = require("supertest");
-const app = require("../../server");
-const db = require("../models");
+const app = require("../../server").default;
+const db = require("../models").default;
 
 describe("Auth API", () => {
   let accessToken, refreshToken, sessionId;

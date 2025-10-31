@@ -1,6 +1,6 @@
-const jwt = require("jsonwebtoken");
-const config = require("../config/auth.config.js");
-const User = require("../models").user;
+import { verify, sign } from "jsonwebtoken";
+import { secret } from "../config/auth.config.js";
+import { user as User } from "../models";
 
 verifyToken = (req, res, next) => {
   let token = req.headers["x-access-token"] || req.headers["authorization"];
@@ -15,7 +15,7 @@ verifyToken = (req, res, next) => {
     token = token.slice(7, token.length);
   }
 
-  jwt.verify(token, config.secret, (err, decoded) => {
+  verify(token, secret, (err, decoded) => {
     if (err) {
       return res.status(401).send({
         message: "Unauthorized! Token is invalid or expired",
@@ -40,7 +40,7 @@ const hybridAuth = async (req, res, next) => {
     token = token.slice(7);
   }
   if (token) {
-    jwt.verify(token, config.secret, (err, decoded) => {
+    verify(token, secret, (err, decoded) => {
       if (!err && decoded && decoded.id) {
         req.userId = decoded.id;
         return next();
@@ -79,7 +79,7 @@ const hybridAuth = async (req, res, next) => {
       return res.status(401).send({ message: "Session invalid." });
     }
     req.userId = user.id;
-    const newToken = jwt.sign({ id: user.id }, config.secret, {
+    const newToken = sign({ id: user.id }, secret, {
       expiresIn: "15m",
     });
     res.setHeader("x-new-access-token", newToken);
@@ -92,4 +92,4 @@ const authJwt = {
   verifySession: verifySession,
 };
 authJwt.hybridAuth = hybridAuth;
-module.exports = authJwt;
+export default authJwt;

@@ -1,25 +1,34 @@
-const config = require("../config/db.config.js");
-const Sequelize = require("sequelize");
+import {
+  dialect as _dialect,
+  storage as _storage,
+  logging as _logging,
+  pool as _pool,
+  DB,
+  USER,
+  PASSWORD,
+  HOST,
+} from "../config/db.config.js";
+import Sequelize from "sequelize";
 
 let sequelize;
-if (config.dialect === "sqlite") {
+if (_dialect === "sqlite") {
   sequelize = new Sequelize({
     dialect: "sqlite",
-    storage: config.storage,
-    logging: config.logging,
-    pool: config.pool
+    storage: _storage,
+    logging: _logging,
+    pool: _pool,
   });
 } else {
-  sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
-    host: config.HOST,
-    dialect: config.dialect,
-    pool: config.pool,
+  sequelize = new Sequelize(DB, USER, PASSWORD, {
+    host: HOST,
+    dialect: _dialect,
+    pool: _pool,
   });
 }
 
 const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
-db.user = require("./user.model.js")(sequelize, Sequelize);
+db.user = require("./user.model.js").default(sequelize, Sequelize);
 
-module.exports = db;
+export default db;

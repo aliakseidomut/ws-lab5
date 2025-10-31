@@ -1,6 +1,4 @@
-module.exports = {
-  secret: "your-secret-key-here",
-  refreshSecret: "your-refresh-secret-key-here",
-  jwtExpiration: 3600,
-  jwtRefreshExpiration: 86400,
-};
+export const secret = "your-secret-key-here";
+export const refreshSecret = "your-refresh-secret-key-here";
+export const jwtExpiration = 3600;
+export const jwtRefreshExpiration = 86400;

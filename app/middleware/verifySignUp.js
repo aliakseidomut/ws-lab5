@@ -1,5 +1,5 @@
-const db = require("../models");
-const User = db.user;
+import { user as _user } from "../models";
+const User = _user;
 
 checkDuplicateUsername = (req, res, next) => {
   User.findOne({
@@ -22,4 +22,4 @@ const verifySignUp = {
   checkDuplicateUsername: checkDuplicateUsername,
 };
 
-module.exports = verifySignUp;
+export default verifySignUp;

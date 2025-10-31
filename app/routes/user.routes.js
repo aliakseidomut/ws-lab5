@@ -1,7 +1,7 @@
-const { authJwt } = require("../middleware");
-const controller = require("../controllers/user.controller");
+import { authJwt } from "../middleware";
+import { userBoard } from "../controllers/user.controller";
 
-module.exports = function (app) {
+export default function (app) {
   app.use(function (req, res, next) {
     res.header(
       "Access-Control-Allow-Headers",
@@ -10,7 +10,7 @@ module.exports = function (app) {
     next();
   });
 
-  app.get("/api/test/user", [authJwt.verifyToken], controller.userBoard);
-  app.get("/api/test/session", [authJwt.verifySession], controller.userBoard);
-  app.get("/api/test/hybrid", [authJwt.hybridAuth], controller.userBoard);
-};
+  app.get("/api/test/user", [authJwt.verifyToken], userBoard);
+  app.get("/api/test/session", [authJwt.verifySession], userBoard);
+  app.get("/api/test/hybrid", [authJwt.hybridAuth], userBoard);
+}
