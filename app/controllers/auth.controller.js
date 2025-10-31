@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
   }
   const exists = await User.findOne({ where: { [Op.or]: [{ username }, { email }] } });
   if (exists) {
-    return res.status(400).json({ message: "Username or email already exist" });
+    return res.status(400).json({ message: "Username or email already exists" });
   }
   const hash = bcrypt.hashSync(password, 8);
   const sessionId = crypto.randomBytes(32).toString("hex");
