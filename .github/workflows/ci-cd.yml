@@ -1,0 +1,51 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-app:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 11112
+          POSTGRES_DB: ws-lab4
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: 11112
+      DB_NAME: ws-lab4
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 14
+      - name: Install Deps
+        run: npm ci
+      - name: Wait for DB
+        run: |
+          for i in {1..15}; do
+            if pg_isready -h localhost -p 5432 -d ws-lab4; then
+              echo "Postgres is ready!" && break
+            else
+              echo "Waiting for Postgres..."
+              sleep 3
+            fi
+          done
+      - name: Run tests
+        run: npm test
