@@ -2,13 +2,7 @@ const sqlite3 = require("sqlite3").verbose();
 require("dotenv").config();
 
 const dbPath = process.env.DATABASE_PATH || "auth.db";
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error("Ошибка при подключении к SQLite:", err.message);
-  } else {
-    console.log("Успешное подключение к базе данных SQLite.");
-  }
-});
+const db = new sqlite3.Database(dbPath);
 
 const initDb = () => {
   return new Promise((resolve, reject) => {
