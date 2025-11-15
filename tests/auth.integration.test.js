@@ -33,7 +33,7 @@ describe("Auth API - Integration Tests", () => {
   describe("POST /api/register", () => {
     it("should register a new user successfully", async () => {
       const res = await request(app)
-        .post("/api/register")
+        .post("/api/")
         .send({ username: "testuser", password: "password123" });
 
       expect(res.statusCode).toBe(201);
