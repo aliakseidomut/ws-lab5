@@ -1,4 +1,3 @@
 node_modules
 auth.db
-package-lock.json
 .env
