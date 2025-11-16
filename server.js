@@ -25,8 +25,8 @@ app.get("/", (req, res) => {
 const startServer = async () => {
   try {
     await initDb();
-    app.listen(PORT, () => {
-      console.log(`Сервер запущен на http://localhost:${PORT}`);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Сервер запущен на порту ${PORT}. Ожидание подключений...`);
     });
   } catch (error) {
     console.error("Не удалось запустить сервер:", error);
