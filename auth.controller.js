@@ -128,7 +128,7 @@ const refresh = async (req, res) => {
       accessToken,
     });
   } catch (error) {
-    console.error("Ошибка обновления токена:", error);
+    console.error("Ошибка обновления токена", error);
     res.status(403).json({ message: "Ошибка при обновлении токена." });
   }
 };
