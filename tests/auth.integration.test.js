@@ -1,6 +1,6 @@
 const request = require("supertest");
 
-const appUrl = secrets.STAGING_APP_URL || "http://localhost:3000";
+const appUrl = "https://my-auth-app-staging.onrender.com";
 
 describe("Auth API - Integration Tests against Live Server", () => {
   describe("POST /api/register", () => {
