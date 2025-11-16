@@ -9,9 +9,8 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  build-and-unit-test:
     runs-on: ubuntu-latest
-
     steps:
       - name: 1. Checkout Code
         uses: actions/checkout@v3
@@ -25,8 +24,8 @@ jobs:
       - name: 3. Install Dependencies
         run: npm install
 
-      - name: 4. Run Unit & Integration Tests
-        run: npm test
+      - name: 4. Run Unit Tests
+        run: npm run test:unit
         env:
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
           REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
@@ -35,21 +34,39 @@ jobs:
           DATABASE_PATH: "test-ci.db"
 
   deploy-staging:
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main' # Только если это push в 'main', а не PR
-
+    needs: build-and-unit-test
+    if: github.ref == 'refs/heads/main' # Только для push в main
     runs-on: ubuntu-latest
-
     steps:
       - name: Trigger Staging Deploy
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_STAGING }}
 
-  deploy-production:
+      - name: Wait for Render Deploy
+        run: sleep 60
+
+  integration-test-staging:
     needs: deploy-staging
-    if: true
-
     runs-on: ubuntu-latest
+    steps:
+      - name: 1. Checkout Code
+        uses: actions/checkout@v3
+      - name: 2. Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          cache: "npm"
+      - name: 3. Install Dependencies
+        run: npm install
 
+      - name: 4. Run Integration Tests against Staging
+        run: npm run test:integration
+        env:
+          STAGING_APP_URL: ${{ secrets.RENDER_STAGING_URL }}
+
+  deploy-production:
+    needs: integration-test-staging
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
     steps:
       - name: Trigger Production Deploy
         run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_PRODUCTION }}
