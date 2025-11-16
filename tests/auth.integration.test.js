@@ -1,6 +1,6 @@
 const request = require("supertest");
 
-const appUrl = process.env.STAGING_APP_URL || "http://localhost:3000";
+const appUrl = secrets.STAGING_APP_URL || "http://localhost:3000";
 
 describe("Auth API - Integration Tests against Live Server", () => {
   describe("POST /api/register", () => {
