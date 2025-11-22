@@ -36,8 +36,7 @@ describe("Auth Service - Unit Tests", () => {
       jwt.verify.mockImplementation(() => {
         throw new Error("Invalid token");
       });
-      ///////////////////////////////////////////////////////////
-      const payload = authService.verifyAccessToke(token);
+      const payload = authService.verifyAccessToken(token);
 
       expect(payload).toBeNull();
       expect(jwt.verify).toHaveBeenCalledWith(
