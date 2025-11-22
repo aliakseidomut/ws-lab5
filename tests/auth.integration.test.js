@@ -8,7 +8,7 @@ describe("Auth API - Integration Tests against Live Server", () => {
 
     it("should register a new user successfully", async () => {
       const res = await request(appUrl)
-        .post("/api/registerhukkh") /////////
+        .post("/api/register")
         .send({ username: testUser, password: "password123" });
 
       expect(res.statusCode).toBe(201);
