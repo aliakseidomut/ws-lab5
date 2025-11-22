@@ -26,7 +26,7 @@ describe("Auth API - Integration Tests against Live Server", () => {
 
       expect(res.statusCode).toBe(409);
       expect(res.body.message).toBe(
-        "Пользователь с таким именем уже существует"
+        "Пользователь с таким именем уже существует."
       );
     });
   });
