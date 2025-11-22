@@ -19,7 +19,7 @@ app.post("/api/logout", authController.logout);
 app.get("/api/profile", verifyAccessToken, authController.getProfile);
 
 app.get("/", (req, res) => {
-  res.send("Сервер аутентификации работает.");
+  res.send("Hello");
 });
 
 const startServer = async () => {
