@@ -19,7 +19,7 @@ describe("Auth Service - Unit Tests", () => {
       const mockPayload = { userId: "123", username: "test" };
       const token = "valid_token";
 
-      jwt.verify.mockImplementationq(() => mockPayload); ////////q
+      jwt.verify.mockImplementation(() => mockPayload);
 
       const payload = authService.verifyAccessToken(token);
 

@@ -6,7 +6,8 @@ describe("Auth API - Integration Tests against Live Server", () => {
   describe("POST /api/register", () => {
     const testUser = `testuser_${Date.now()}`;
 
-    it("should register a new user successfully", async () => {
+    itq("should register a new user successfully", async () => {
+      ///////q
       const res = await request(appUrl)
         .post("/api/register")
         .send({ username: testUser, password: "password123" });
